@@ -18,50 +18,69 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
+    // Hero section text animation
+    const heroTexts = document.querySelectorAll('.hero-animated-text');
+    let currentTextIndex = 0;
+
+    function changeHeroText() {
+        heroTexts[currentTextIndex].classList.remove('active');
+        currentTextIndex = (currentTextIndex + 1) % heroTexts.length;
+        heroTexts[currentTextIndex].classList.add('active');
+    }
+
+    setInterval(changeHeroText, 3000);
+    heroTexts[0].classList.add('active');
+
     // Intersection Observer for fade-in and slide-up animations
-    const observer = new IntersectionObserver((entries) => {
+    const observerOptions = {
+        root: null,
+        rootMargin: '0px',
+        threshold: 0.1
+    };
+
+    const observer = new IntersectionObserver((entries, observer) => {
         entries.forEach(entry => {
             if (entry.isIntersecting) {
-                entry.target.classList.add('fade-in');
-                entry.target.classList.add('slide-up');
+                entry.target.classList.add('fade-in-up');
+                observer.unobserve(entry.target);
             }
         });
-    }, { threshold: 0.1 });
+    }, observerOptions);
 
-    document.querySelectorAll('.feature-item, .template-item, .pricing-item, .testimonial-item').forEach(item => {
+    document.querySelectorAll('.feature-item, .template-item, .testimonial-item, .faq-item').forEach(item => {
         observer.observe(item);
     });
 
     // Testimonial slider
-    const testimonialSlider = document.querySelector('.testimonial-slider');
+    const testimonialCarousel = document.querySelector('.testimonial-carousel');
     let isDown = false;
     let startX;
     let scrollLeft;
 
-    testimonialSlider.addEventListener('mousedown', (e) => {
+    testimonialCarousel.addEventListener('mousedown', (e) => {
         isDown = true;
-        startX = e.pageX - testimonialSlider.offsetLeft;
-        scrollLeft = testimonialSlider.scrollLeft;
+        startX = e.pageX - testimonialCarousel.offsetLeft;
+        scrollLeft = testimonialCarousel.scrollLeft;
     });
 
-    testimonialSlider.addEventListener('mouseleave', () => {
+    testimonialCarousel.addEventListener('mouseleave', () => {
         isDown = false;
     });
 
-    testimonialSlider.addEventListener('mouseup', () => {
+    testimonialCarousel.addEventListener('mouseup', () => {
         isDown = false;
     });
 
-    testimonialSlider.addEventListener('mousemove', (e) => {
+    testimonialCarousel.addEventListener('mousemove', (e) => {
         if (!isDown) return;
         e.preventDefault();
-        const x = e.pageX - testimonialSlider.offsetLeft;
+        const x = e.pageX - testimonialCarousel.offsetLeft;
         const walk = (x - startX) * 2;
-        testimonialSlider.scrollLeft = scrollLeft - walk;
+        testimonialCarousel.scrollLeft = scrollLeft - walk;
     });
 
     // Header shrink on scroll
-    const header = document.querySelector('header');
+    const header = document.querySelector('.header');
     let lastScrollTop = 0;
 
     window.addEventListener('scroll', () => {
@@ -79,25 +98,24 @@ document.addEventListener('DOMContentLoaded', () => {
             header.classList.remove('shrink');
         }
     });
-});
 
-// FAQ Accordion Functionality
-document.querySelectorAll('.faq-question').forEach(question => {
-    question.addEventListener('click', () => {
-        const faqItem = question.parentElement;
-        faqItem.classList.toggle('open');
+    // FAQ Accordion
+    const faqItems = document.querySelectorAll('.faq-item');
+
+    faqItems.forEach(item => {
+        const question = item.querySelector('.faq-question');
+        question.addEventListener('click', () => {
+            const isOpen = item.classList.contains('active');
+            
+            // Close all FAQ items
+            faqItems.forEach(faqItem => {
+                faqItem.classList.remove('active');
+            });
+
+            // If the clicked item wasn't open, open it
+            if (!isOpen) {
+                item.classList.add('active');
+            }
+        });
     });
 });
-
-// Hero Section Text Animation (Apple-inspired)
-let heroTexts = document.querySelectorAll('.hero-animated-text h1');
-let index = 0;
-
-function changeHeroText() {
-    heroTexts.forEach((text, i) => {
-        text.style.opacity = i === index ? '1' : '0';
-    });
-    index = (index + 1) % heroTexts.length;
-}
-
-setInterval(changeHeroText, 3000);
